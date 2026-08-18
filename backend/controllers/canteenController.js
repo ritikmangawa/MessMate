@@ -63,4 +63,34 @@ const placeOrder = async (req, res) => {
   }
 };
 
-module.exports = { getItems, placeOrder };
+// @desc    Get all canteen orders for the mess (Admin only)
+// @route   GET /api/canteen/orders/all
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await CanteenOrder.find({ messId: req.user.messId })
+      .populate('studentId', 'name roomNumber hostel')
+      .sort({ createdAt: -1 }); // Newest first
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Update order status (Admin only)
+// @route   PUT /api/canteen/orders/:id/status
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await CanteenOrder.findOneAndUpdate(
+      { _id: req.params.id, messId: req.user.messId },
+      { status },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { getItems, placeOrder, getAllOrders, updateOrderStatus };

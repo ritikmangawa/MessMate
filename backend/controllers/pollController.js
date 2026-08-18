@@ -57,4 +57,29 @@ const votePoll = async (req, res) => {
 };
 
 // @desc    Create a new poll (Admin only)
-// 
+// @route   POST /api/polls/create
+const createPoll = async (req, res) => {
+  try {
+    const { question, options } = req.body;
+
+    // Deactivate existing polls for this mess
+    await Poll.updateMany({ messId: req.user.messId }, { isActive: false });
+
+    // Format options from array of strings to array of objects
+    const formattedOptions = options.map(opt => ({ text: opt, votes: 0 }));
+
+    const newPoll = await Poll.create({
+      messId: req.user.messId,
+      question,
+      options: formattedOptions,
+      votedStudents: [],
+      isActive: true
+    });
+
+    res.status(201).json({ message: 'Poll created successfully!', poll: newPoll });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { getActivePoll, votePoll, createPoll };

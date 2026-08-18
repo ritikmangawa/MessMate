@@ -6,28 +6,38 @@ import axios from 'axios';
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    breakfast: '',
-    lunch: '',
-    dinner: ''
-  });
+  
+  // Menu State
+  const [formData, setFormData] = useState({ breakfast: '', lunch: '', dinner: '' });
   const [status, setStatus] = useState('');
   const [stats, setStats] = useState(null);
+
+  // Poll State
+  const [pollQuestion, setPollQuestion] = useState('');
+  const [pollOptions, setPollOptions] = useState(['', '']);
+  const [pollStatus, setPollStatus] = useState('');
+
+  // Canteen Orders State
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
 
   useEffect(() => {
     if (!user || user.role !== 'admin') return;
 
-    const fetchStats = async () => {
+    const fetchStatsAndOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/admin/stats', {
-          withCredentials: true
-        });
-        setStats(response.data);
+        const statsRes = await axios.get('http://localhost:5000/api/admin/stats', { withCredentials: true });
+        setStats(statsRes.data);
+        
+        const ordersRes = await axios.get('http://localhost:5000/api/canteen/orders/all', { withCredentials: true });
+        setOrders(ordersRes.data);
       } catch (err) {
-        console.error("Could not fetch stats", err);
+        console.error("Could not fetch data", err);
+      } finally {
+        setOrdersLoading(false);
       }
     };
-    fetchStats();
+    fetchStatsAndOrders();
   }, [user]);
 
   if (!user || user.role !== 'admin') {
@@ -40,38 +50,65 @@ const AdminDashboard = () => {
     );
   }
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  // Menu Handlers
+  const handleMenuChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleMenuSubmit = async (e) => {
     e.preventDefault();
     setStatus('Uploading...');
-    
     const payload = {
       breakfast: formData.breakfast.split(',').map(i => i.trim()).filter(i => i),
       lunch: formData.lunch.split(',').map(i => i.trim()).filter(i => i),
       dinner: formData.dinner.split(',').map(i => i.trim()).filter(i => i)
     };
-
     try {
-      await axios.post('http://localhost:5000/api/admin/menu', payload, {
-        withCredentials: true
-      });
+      await axios.post('http://localhost:5000/api/admin/menu', payload, { withCredentials: true });
       setStatus('Success! Menu uploaded for tomorrow.');
       setFormData({ breakfast: '', lunch: '', dinner: '' }); 
     } catch (err) {
-      console.error(err);
       setStatus(err.response?.data?.message || 'Error uploading menu.');
     }
   };
 
+  // Poll Handlers
+  const handlePollOptionChange = (index, value) => {
+    const newOptions = [...pollOptions];
+    newOptions[index] = value;
+    setPollOptions(newOptions);
+  };
+  const addPollOption = () => setPollOptions([...pollOptions, '']);
+  const handlePollSubmit = async (e) => {
+    e.preventDefault();
+    setPollStatus('Publishing...');
+    try {
+      await axios.post('http://localhost:5000/api/polls/create', {
+        question: pollQuestion,
+        options: pollOptions.filter(o => o.trim() !== '')
+      }, { withCredentials: true });
+      setPollStatus('Success! Poll is live on student dashboards.');
+      setPollQuestion('');
+      setPollOptions(['', '']);
+    } catch (err) {
+      setPollStatus(err.response?.data?.message || 'Error creating poll.');
+    }
+  };
+
+  // Canteen Order Handlers
+  const handleOrderStatusUpdate = async (orderId, newStatus) => {
+    try {
+      await axios.put(`http://localhost:5000/api/canteen/orders/${orderId}/status`, { status: newStatus }, { withCredentials: true });
+      setOrders(orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+    } catch (err) {
+      alert('Error updating order status');
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       
-      <div className="grid lg:grid-cols-2 gap-8">
+      {/* Top Row: Analytics & Menu Upload */}
+      <div className="grid xl:grid-cols-2 gap-8">
         
-        {/* Left Column: Analytics */}
+        {/* Left: Analytics */}
         <div>
           <h3 className="text-2xl font-extrabold text-gray-900 mb-6">Tomorrow's Headcount</h3>
           {stats ? (
@@ -100,28 +137,103 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {/* Right Column: Menu Upload */}
+        {/* Right: Menu Upload */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-          <h3 className="text-2xl font-extrabold text-gray-900 mb-6">Upload Tomorrow's Menu</h3>
+          <h3 className="text-2xl font-extrabold text-gray-900 mb-6">Upload Menu</h3>
           {status && <div className={`mb-6 p-4 rounded-xl font-medium border ${status.includes('Error') ? 'bg-red-50 text-red-700 border-red-100' : 'bg-green-50 text-green-800 border-green-100'}`}>{status}</div>}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleMenuSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Breakfast</label>
-              <textarea name="breakfast" value={formData.breakfast} onChange={handleChange} placeholder="e.g. Poha, Tea, Banana" className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" rows="2" required />
+              <textarea name="breakfast" value={formData.breakfast} onChange={handleMenuChange} placeholder="e.g. Poha, Tea, Banana" className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" rows="1" required />
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Lunch</label>
-              <textarea name="lunch" value={formData.lunch} onChange={handleChange} placeholder="e.g. Dal, Rice, Roti, Salad" className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" rows="2" required />
+              <textarea name="lunch" value={formData.lunch} onChange={handleMenuChange} placeholder="e.g. Dal, Rice, Roti, Salad" className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" rows="1" required />
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Dinner</label>
-              <textarea name="dinner" value={formData.dinner} onChange={handleChange} placeholder="e.g. Paneer Masala, Roti, Gulab Jamun" className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" rows="2" required />
+              <textarea name="dinner" value={formData.dinner} onChange={handleMenuChange} placeholder="e.g. Paneer Masala, Roti" className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 outline-none bg-gray-50" rows="1" required />
             </div>
-            <button type="submit" className="w-full bg-gray-900 text-white font-bold py-4 rounded-xl shadow-md hover:bg-black transition-colors text-lg mt-2">
-              Publish Menu to Students
-            </button>
+            <button type="submit" className="w-full bg-gray-900 text-white font-bold py-3 rounded-xl shadow-md hover:bg-black transition-colors">Publish Menu</button>
           </form>
+        </div>
+      </div>
+
+      {/* Bottom Row: Polls & Canteen Orders */}
+      <div className="grid xl:grid-cols-3 gap-8">
+        
+        {/* Create Poll */}
+        <div className="xl:col-span-1 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl shadow-sm border border-gray-100 p-8 text-white">
+          <h3 className="text-2xl font-extrabold mb-6">Create Poll</h3>
+          {pollStatus && <div className="mb-4 p-3 rounded-lg font-medium bg-white/20 border border-white/30 text-sm">{pollStatus}</div>}
+          
+          <form onSubmit={handlePollSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-purple-100 mb-2">Poll Question</label>
+              <input type="text" value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} required className="w-full border-0 rounded-xl p-3 bg-white/10 text-white placeholder-purple-300 focus:ring-2 focus:ring-white outline-none" placeholder="e.g. Sunday Special Dessert?" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-purple-100 mb-2">Options</label>
+              {pollOptions.map((opt, idx) => (
+                <input key={idx} type="text" value={opt} onChange={(e) => handlePollOptionChange(idx, e.target.value)} required className="w-full border-0 rounded-xl p-3 bg-white/10 text-white placeholder-purple-300 focus:ring-2 focus:ring-white outline-none mb-2" placeholder={`Option ${idx + 1}`} />
+              ))}
+              <button type="button" onClick={addPollOption} className="text-sm font-bold text-purple-200 hover:text-white transition">+ Add another option</button>
+            </div>
+            <button type="submit" className="w-full bg-white text-purple-700 font-bold py-3 rounded-xl shadow-md hover:bg-gray-50 transition-colors mt-4">Publish Poll</button>
+          </form>
+        </div>
+
+        {/* Canteen Orders */}
+        <div className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 overflow-hidden flex flex-col">
+          <h3 className="text-2xl font-extrabold text-gray-900 mb-6">Canteen Orders</h3>
+          
+          {ordersLoading ? (
+            <p className="text-gray-500">Loading orders...</p>
+          ) : orders.length === 0 ? (
+            <p className="text-gray-500 py-8 text-center italic border-2 border-dashed border-gray-200 rounded-xl">No active canteen orders.</p>
+          ) : (
+            <div className="overflow-x-auto flex-1">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-gray-100">
+                    <th className="pb-3 font-bold text-gray-600">Student</th>
+                    <th className="pb-3 font-bold text-gray-600">Room</th>
+                    <th className="pb-3 font-bold text-gray-600">Items</th>
+                    <th className="pb-3 font-bold text-gray-600">Total</th>
+                    <th className="pb-3 font-bold text-gray-600">Status</th>
+                    <th className="pb-3 font-bold text-gray-600">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {orders.map(order => (
+                    <tr key={order._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                      <td className="py-4 font-medium text-gray-900">{order.studentId?.name || 'Unknown'}</td>
+                      <td className="py-4 text-gray-600">{order.studentId?.hostel}-{order.studentId?.roomNumber}</td>
+                      <td className="py-4 text-gray-600">
+                        {order.items.map((item, i) => <div key={i}>{item.quantity}x {item.name}</div>)}
+                      </td>
+                      <td className="py-4 font-bold text-gray-900">₹{order.totalAmount}</td>
+                      <td className="py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          order.status === 'delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {order.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-4">
+                        {order.status === 'pending' && (
+                          <button onClick={() => handleOrderStatusUpdate(order._id, 'delivered')} className="text-xs bg-gray-900 text-white px-3 py-2 rounded-lg font-bold hover:bg-black transition">
+                            Mark Delivered
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
       </div>
