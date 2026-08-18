@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import Wallet from './pages/Wallet';
 import Canteen from './pages/Canteen';
+import Profile from './pages/Profile';
 
 function App(){
   return (
@@ -21,6 +22,7 @@ function App(){
         <Route path="admin" element={<AdminDashboard />} />
         <Route path="wallet" element={<Wallet />} />
         <Route path="canteen" element={<Canteen />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
     </Routes>
   );

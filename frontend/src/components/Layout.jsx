@@ -30,6 +30,7 @@ const Layout = () => {
                     <Link to="/dashboard" className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition">Dashboard</Link>
                     <Link to="/canteen" className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition">Canteen</Link>
                     <Link to="/wallet" className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition">Wallet (₹{user.walletBalance})</Link>
+                    <Link to="/profile" className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition">Profile</Link>
                   </>
                 )}
                 <button onClick={handleLogout} className="text-sm font-bold text-red-600 hover:text-red-700 bg-red-50 px-4 py-2 rounded-full transition">Logout</button>
