@@ -4,6 +4,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
+const mealRoutes = require('./routes/mealRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 
 dotenv.config();
@@ -15,6 +17,8 @@ app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json()); 
 app.use(cookieParser()); 
 app.use('/api/auth', authRoutes);   
+app.use('/api/meals', mealRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {
   res.send('MessMate API is running!');

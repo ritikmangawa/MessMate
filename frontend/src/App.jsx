@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App(){
   return (
@@ -13,8 +14,9 @@ function App(){
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
-        {/* We will protect this route later so only logged-in users can see it */}
+        {/* Protected Routes */}
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </div>
   );
