@@ -6,7 +6,10 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const mealRoutes = require('./routes/mealRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const walletRoutes = require('./routes/walletRoutes');
 
+// Initialize background jobs (like the 10 PM Auto-Pilot)
+require('./cron/scheduler');
 
 dotenv.config();
 
@@ -19,6 +22,10 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);   
 app.use('/api/meals', mealRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/messes', require('./routes/messRoutes'));
+app.use('/api/canteen', require('./routes/canteenRoutes'));
+app.use('/api/polls', require('./routes/pollRoutes'));
 
 app.get('/', (req, res) => {
   res.send('MessMate API is running!');

@@ -6,6 +6,11 @@ const registrationSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  messId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Mess',
+    required: true
+  },
   date: {
     type: Date,
     required: true

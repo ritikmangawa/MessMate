@@ -6,13 +6,17 @@ const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role, hostel, roomNumber } = req.body;
+    const { name, email, password, role, hostel, roomNumber, messId } = req.body;
   
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists with this email.' });
     }
     
+    if (!messId) {
+      return res.status(400).json({ message: 'Please select a Mess.' });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     
@@ -22,7 +26,8 @@ const register = async (req, res) => {
       password: hashedPassword,
       role: role || 'student',
       hostel,
-      roomNumber
+      roomNumber,
+      messId
     });
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully!' });
@@ -64,6 +69,9 @@ const login = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      hostel: user.hostel,
+      roomNumber: user.roomNumber,
+      messId: user.messId,
       walletBalance: user.walletBalance,
       autoPilotMode: user.autoPilotMode
     });

@@ -22,11 +22,11 @@ This document tracks all completed and upcoming tasks for the MessMate project, 
 - [x] **Meal Controller & Routes**: Built the backend logic to fetch tomorrow's menu and allow students to submit their registrations (including a strict 10 PM deadline check).
 - [x] **Student Dashboard UI**: Build the React page where students can view their current wallet balance, see tomorrow's menu, and check/uncheck their meals.
 
-## Phase 4: Wallet & Payments (Upcoming)
-- [ ] **Razorpay Integration**: Setup the payment gateway to allow students to recharge their wallet balance with real money.
-- [ ] **Transaction History**: Create a database model to record all deductions (for special items) and recharges.
+## Phase 4: Wallet & Payments (Mocked)
+- [x] **Razorpay Integration (Mocked)**: Setup a mock payment gateway to allow students to recharge their wallet balance instantly for testing.
+- [x] **Transaction History**: Create a database model to record all deductions (for special items) and recharges.
 
 ## Phase 5: Administration & Automation (Upcoming)
-- [ ] **Node-cron Automation**: Write background jobs to automatically register students who have "Auto-Pilot Mode 1" enabled when the 10 PM deadline hits.
+- [x] **Node-cron Automation**: Write background jobs to automatically register students who have "Auto-Pilot Mode 1" enabled when the 10 PM deadline hits.
 - [x] **Admin Dashboard UI**: Build a page showing real-time statistics and exact meal counts to the kitchen staff so they know exactly how much food to cook.
 - [ ] **QR Code Verification**: Generate a unique QR pass for registered students and build a scanner for the mess entrance.

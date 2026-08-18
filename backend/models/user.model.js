@@ -18,6 +18,11 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'admin'],
     default: 'student',
   },
+  messId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Mess',
+    required: true
+  },
   hostel: {
     type: String,
     required: function() { 

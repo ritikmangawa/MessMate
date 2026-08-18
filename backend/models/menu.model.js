@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
 
 const menuSchema = new mongoose.Schema({
+  messId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Mess',
+    required: true
+  },
   date: {
     type: Date,
-    required: true,
-    unique: true
+    required: true
   },
   breakfast: {
     type: [String],
@@ -23,5 +27,7 @@ const menuSchema = new mongoose.Schema({
     price: Number
   }]
 }, { timestamps: true });
+
+menuSchema.index({ messId: 1, date: 1 }, { unique: true });
 
 module.exports = mongoose.model('Menu', menuSchema);

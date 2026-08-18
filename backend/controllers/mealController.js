@@ -9,11 +9,29 @@ const getTomorrowMenu = async (req, res) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    const menu = await Menu.findOne({ date: tomorrow });
+    // Filter by the student's messId
+    const menu = await Menu.findOne({ date: tomorrow, messId: req.user.messId });
     if (!menu) {
       return res.status(404).json({ message: 'Menu for tomorrow is not uploaded yet.' });
     }
     res.status(200).json(menu);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Get tomorrow's registration for student
+// @route   GET /api/meals/registration/tomorrow
+const getTomorrowRegistration = async (req, res) => {
+  try {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    const reg = await Registration.findOne({ studentId: req.user._id, date: tomorrow, messId: req.user.messId });
+    if (!reg) return res.status(404).json(null);
+    
+    res.status(200).json(reg);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -35,14 +53,13 @@ const registerMeals = async (req, res) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
 
-    // Calculate total cost for special items (Requires wallet deduction logic later)
-    // For now, just save the registration
     const qrData = `MESS-${req.user._id}-${tomorrow.getTime()}`;
 
     // Update if exists, otherwise create new
     const registration = await Registration.findOneAndUpdate(
       { studentId: req.user._id, date: tomorrow },
       {
+        messId: req.user.messId, // Ensure it's tied to their mess
         meals: { breakfast, lunch, dinner },
         specialItemsSelected: specialItemsSelected || [],
         status: (breakfast || lunch || dinner) ? 'registered' : 'withdrawn',
@@ -57,4 +74,4 @@ const registerMeals = async (req, res) => {
   }
 };
 
-module.exports = { getTomorrowMenu, registerMeals };
+module.exports = { getTomorrowMenu, getTomorrowRegistration, registerMeals };
