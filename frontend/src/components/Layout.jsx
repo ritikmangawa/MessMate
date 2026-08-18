@@ -21,6 +21,8 @@ const Layout = () => {
           <Link to="/" className="text-2xl font-black text-blue-600 tracking-tight">MessMate</Link>
           
           <nav className="flex items-center gap-6">
+            <Link to="/about" className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition">About</Link>
+            
             {user ? (
               <>
                 {user.role === 'admin' ? (

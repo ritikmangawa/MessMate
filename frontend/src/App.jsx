@@ -8,12 +8,14 @@ import AdminDashboard from './pages/AdminDashboard';
 import Wallet from './pages/Wallet';
 import Canteen from './pages/Canteen';
 import Profile from './pages/Profile';
+import About from './pages/About';
 
 function App(){
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="about" element={<About />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         

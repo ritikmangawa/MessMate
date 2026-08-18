@@ -1,4 +1,5 @@
-const User = require('../models/User');
+const User = require('../models/user.model.js');
+const Mess = require('../models/mess.model.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 // @desc    Register a new user
@@ -6,15 +7,28 @@ const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
   try {
-    const { name, email, password, role, hostel, roomNumber, messId } = req.body;
+    const { name, email, password, role, hostel, roomNumber, messId, newMessName, newMessLocation } = req.body;
   
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists with this email.' });
     }
     
-    if (!messId) {
-      return res.status(400).json({ message: 'Please select a Mess.' });
+    let finalMessId = messId;
+
+    if (role === 'admin') {
+      if (!newMessName) {
+        return res.status(400).json({ message: 'Please provide a name for the new Mess.' });
+      }
+      const newMess = await Mess.create({
+        name: newMessName,
+        location: newMessLocation || ''
+      });
+      finalMessId = newMess._id;
+    } else {
+      if (!finalMessId) {
+        return res.status(400).json({ message: 'Please select a Mess.' });
+      }
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -25,9 +39,9 @@ const register = async (req, res) => {
       email,
       password: hashedPassword,
       role: role || 'student',
-      hostel,
-      roomNumber,
-      messId
+      hostel: role === 'admin' ? undefined : hostel,
+      roomNumber: role === 'admin' ? undefined : roomNumber,
+      messId: finalMessId
     });
     await newUser.save();
     res.status(201).json({ message: 'User registered successfully!' });
