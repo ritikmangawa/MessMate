@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 
 
 const Login = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,18 +23,21 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Send a POST request to login
-      // { withCredentials: true } is REQUIRED so the browser saves the JWT cookie!
       const response = await axios.post(
         'http://localhost:5000/api/auth/login', 
         formData, 
         { withCredentials: true } 
       );
       
-      console.log('Login Success:', response.data);
+      // Update global React context with the user data!
+      login(response.data);
       
-      // Navigate to the dashboard after successful login
-      navigate('/dashboard');
+      // Redirect based on the user's role
+      if (response.data.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
       
     } catch (err) {
       console.error(err);
