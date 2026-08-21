@@ -10,7 +10,7 @@ const Profile = () => {
     if (user?.messId) {
       const fetchMess = async () => {
         try {
-          const res = await axios.get('http://localhost:5000/api/messes');
+          const res = await axios.get('https://mess-mate-2wvq.vercel.app/api/messes');
           const myMess = res.data.find(m => m._id === user.messId);
           if (myMess) setMessName(`${myMess.name} (${myMess.location})`);
           else setMessName('Unknown Mess');

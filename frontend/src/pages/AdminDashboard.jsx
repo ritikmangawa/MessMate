@@ -26,10 +26,10 @@ const AdminDashboard = () => {
 
     const fetchStatsAndOrders = async () => {
       try {
-        const statsRes = await axios.get('http://localhost:5000/api/admin/stats', { withCredentials: true });
+        const statsRes = await axios.get('https://mess-mate-2wvq.vercel.app/api/admin/stats', { withCredentials: true });
         setStats(statsRes.data);
         
-        const ordersRes = await axios.get('http://localhost:5000/api/canteen/orders/all', { withCredentials: true });
+        const ordersRes = await axios.get('https://mess-mate-2wvq.vercel.app/api/canteen/orders/all', { withCredentials: true });
         setOrders(ordersRes.data);
       } catch (err) {
         console.error("Could not fetch data", err);
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
       dinner: formData.dinner.split(',').map(i => i.trim()).filter(i => i)
     };
     try {
-      await axios.post('http://localhost:5000/api/admin/menu', payload, { withCredentials: true });
+      await axios.post('https://mess-mate-2wvq.vercel.app/api/admin/menu', payload, { withCredentials: true });
       setStatus('Success! Menu uploaded for tomorrow.');
       setFormData({ breakfast: '', lunch: '', dinner: '' }); 
     } catch (err) {
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     setPollStatus('Publishing...');
     try {
-      await axios.post('http://localhost:5000/api/polls/create', {
+      await axios.post('https://mess-mate-2wvq.vercel.app/api/polls/create', {
         question: pollQuestion,
         options: pollOptions.filter(o => o.trim() !== '')
       }, { withCredentials: true });
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
   // Canteen Order Handlers
   const handleOrderStatusUpdate = async (orderId, newStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/canteen/orders/${orderId}/status`, { status: newStatus }, { withCredentials: true });
+      await axios.put(`https://mess-mate-2wvq.vercel.app/api/canteen/orders/${orderId}/status`, { status: newStatus }, { withCredentials: true });
       setOrders(orders.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
     } catch (err) {
       alert('Error updating order status');

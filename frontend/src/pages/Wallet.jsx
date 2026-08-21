@@ -18,7 +18,7 @@ const Wallet = () => {
 
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/wallet/transactions', {
+        const response = await axios.get('https://mess-mate-2wvq.vercel.app/api/wallet/transactions', {
           withCredentials: true
         });
         setTransactions(response.data);
@@ -33,7 +33,7 @@ const Wallet = () => {
 
   const handleMockRecharge = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/wallet/recharge', 
+      const response = await axios.post('https://mess-mate-2wvq.vercel.app/api/wallet/recharge', 
         { amount: rechargeAmount }, 
         { withCredentials: true }
       );

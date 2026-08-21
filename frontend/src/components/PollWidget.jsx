@@ -8,7 +8,7 @@ const PollWidget = () => {
   useEffect(() => {
     const fetchPoll = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/polls', { withCredentials: true });
+        const res = await axios.get('https://mess-mate-2wvq.vercel.app/api/polls', { withCredentials: true });
         setPollData(res.data);
       } catch (err) {
         console.error(err);
@@ -21,7 +21,7 @@ const PollWidget = () => {
 
   const handleVote = async (optionId) => {
     try {
-      const res = await axios.post('http://localhost:5000/api/polls/vote', {
+      const res = await axios.post('https://mess-mate-2wvq.vercel.app/api/polls/vote', {
         pollId: pollData.poll._id,
         optionId
       }, { withCredentials: true });

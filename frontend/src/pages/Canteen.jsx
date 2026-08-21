@@ -19,7 +19,7 @@ const Canteen = () => {
 
     const fetchItems = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/canteen/items', {
+        const response = await axios.get('https://mess-mate-2wvq.vercel.app/api/canteen/items', {
           withCredentials: true
         });
         setItems(response.data);
@@ -67,7 +67,7 @@ const Canteen = () => {
         return { itemId, name: item.name, price: item.price, quantity: qty };
       });
 
-      const response = await axios.post('http://localhost:5000/api/canteen/order', {
+      const response = await axios.post('https://mess-mate-2wvq.vercel.app/api/canteen/order', {
         items: orderItems,
         totalAmount
       }, { withCredentials: true });

@@ -17,7 +17,7 @@ const Register = () => {
   useEffect(() => {
     const fetchMesses = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/messes');
+        const response = await axios.get('https://mess-mate-2wvq.vercel.app/api/messes');
         setMesses(response.data);
       } catch (err) {
         console.error('Error fetching messes:', err);
@@ -37,7 +37,7 @@ const Register = () => {
 
     try {
       const payload = { ...formData, role };
-      await axios.post('http://localhost:5000/api/auth/register', payload);
+      await axios.post('https://mess-mate-2wvq.vercel.app/api/auth/register', payload);
       alert('Registration successful! Please login.');
       navigate('/login');
     } catch (err) {

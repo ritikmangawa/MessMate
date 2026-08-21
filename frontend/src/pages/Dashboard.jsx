@@ -28,8 +28,8 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [menuRes, regRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/meals/menu/tomorrow', { withCredentials: true }),
-          axios.get('http://localhost:5000/api/meals/registration/tomorrow', { withCredentials: true }).catch(() => ({ data: null }))
+          axios.get('https://mess-mate-2wvq.vercel.app/api/meals/menu/tomorrow', { withCredentials: true }),
+          axios.get('https://mess-mate-2wvq.vercel.app/api/meals/registration/tomorrow', { withCredentials: true }).catch(() => ({ data: null }))
         ]);
         
         setMenu(menuRes.data);
@@ -62,7 +62,7 @@ const Dashboard = () => {
     setError('');
     setSuccessMsg('');
     try {
-      const response = await axios.post('http://localhost:5000/api/meals/register', mealSelection, {
+      const response = await axios.post('https://mess-mate-2wvq.vercel.app/api/meals/register', mealSelection, {
         withCredentials: true
       });
       setSuccessMsg(response.data.message);
